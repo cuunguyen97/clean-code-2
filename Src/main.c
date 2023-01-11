@@ -135,16 +135,16 @@
 #define BW2PRESS_TIME		            400u
 
 /* Button status */
-#define BUTTON_EDGE_RISING              	1
-#define BUTTON_EDGE_FALLING             	2
-#define Null								0
+#define BUTTON_EDGE						1
+#define BUTTON_EDGE_FALLING            	2
+#define Null							0
 
 /* Button states */
-#define BUTTON_STATE_START        	0
-#define BUTTON_STATE_DEBOUNCE     	1
-#define BUTTON_STATE_PRESSED      	2
-#define BUTTON_STATE_WAITPRESS		3
-#define BUTTON_STATE_WAITRELEASE  	4
+#define BUTTON_STATE_START        		0
+#define BUTTON_STATE_DEBOUNCE     		1
+#define BUTTON_STATE_PRESSED      		2
+#define BUTTON_STATE_WAITPRESS			3
+#define BUTTON_STATE_WAITRELEASE  		4
 /******************************************************************************/
 /*                              PRIVATE DATA                                  */
 /******************************************************************************/
@@ -158,13 +158,13 @@ typedef enum{
 	 EVENT_OF_BUTTON_HOLD_500MS,
 	 EVENT_OF_BUTTON_RELEASED,
 	 EVENT_OF_BUTTON_NOCLICK
-}event_button_t;
+}EventButton_e;
 /**
  * @brief  Button structure
  */
 typedef struct
 {
-	event_button_t buttonEven ;
+	EventButton_e buttonEven ;
 	uint8_t pressCnt ;												/*!< Time when button was pressed */
 	uint8_t pressCntEnd;
 	uint32_t timeInit;
@@ -174,10 +174,10 @@ typedef struct
 	uint32_t timeOut;
 	uint8_t State;														/*!< Current button state */
 	uint8_t Status;
-}BUTTON_t;
-BUTTON_t BtnB2;
-BUTTON_t BtnB3;
-BUTTON_t BtnB4;
+}Button_t;
+Button_t BtnB2;
+Button_t BtnB3;
+Button_t BtnB4;
 /******************************************************************************/
 /*                              EXPORTED DATA                                 */
 /******************************************************************************/
@@ -212,7 +212,7 @@ void BuzzerControl_SetBeep(void);
 
 uint32_t CalculatorTime(uint32_t dwTimeInit,uint32_t dwTimeCurrent);
 
-void ScanButton(BUTTON_t* ButtonStruct);
+void ScanButton(Button_t* ButtonStruct);
 
 void processEventButton(void);
 /******************************************************************************/
@@ -465,10 +465,10 @@ uint32_t CalculatorTime(uint32_t dwTimeInit,uint32_t dwTimeCurrent)
 /**
  * @func   ScanButton
  * @brief  Ham quet event nut nhan
- * @param  Con tro cau truc nut nhan dang BUTTON_t
+ * @param  Con tro cau truc nut nhan dang Button_t
  * @retval None
  */
-void ScanButton(BUTTON_t* ButtonStruct)
+void ScanButton(Button_t* ButtonStruct)
 {
 	uint32_t now,timeTemp;
 	static uint8_t temp = 0;
