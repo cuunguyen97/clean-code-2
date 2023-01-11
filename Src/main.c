@@ -82,7 +82,7 @@
 #define	BUZZER_INIT_SETCLOCK			RCC_AHB1Periph_GPIOC
 #define BUZZER_PIN						9
 //Define cac nut B2,B3,B4----------------------------------------------------------------/
-
+#define BUTTON_COUNT					3
 //Button B2:PB3
 #define BUTTON_B2_GPIO_PIN				GPIO_Pin_3
 #define BUTTON_B2_GPIO_PORT				GPIOB
@@ -95,6 +95,7 @@
 #define BUTTON_B2_NVIC_IRQCHANNEL 		EXTI3_IRQn
 #define BUTTON_B2_EXTI_TRIGGER_TYPE_DEF EXTI_Trigger_Rising_Falling
 
+#define BUTTON_B2_INIT					{BUTTON_B2_GPIO_PIN,BUTTON_B2_GPIO_PORT,BUTTON_B2_INIT_SETCLOCK,BUTTON_B2_EXTI_PORT_SOURCEGPIOX,BUTTON_B2_EXTI_PINSOURCEX,BUTTON_B2_EXTI_LINE,BUTTON_B2_NVIC_IRQCHANNEL,BUTTON_B2_EXTI_TRIGGER_TYPE_DEF}
 
 //Button B3:PA4
 #define BUTTON_B3_GPIO_PIN				GPIO_Pin_4
@@ -106,9 +107,9 @@
 #define BUTTON_B3_EXTI_PINSOURCEX		EXTI_PinSource4
 #define BUTTON_B3_EXTI_LINE				EXTI_Line4
 #define BUTTON_B3_NVIC_IRQCHANNEL 		EXTI4_IRQn
-#define BUTTON_B3_EXTI_TRIGGER_TYPE_DEF  	EXTI_Trigger_Rising_Falling
+#define BUTTON_B3_EXTI_TRIGGER_TYPE_DEF EXTI_Trigger_Rising_Falling
 
-
+#define BUTTON_B3_INIT					{BUTTON_B3_GPIO_PIN,BUTTON_B3_GPIO_PORT,BUTTON_B3_INIT_SETCLOCK,BUTTON_B3_EXTI_PORT_SOURCEGPIOX,BUTTON_B3_EXTI_PINSOURCEX,BUTTON_B3_EXTI_LINE,BUTTON_B3_NVIC_IRQCHANNEL,BUTTON_B3_EXTI_TRIGGER_TYPE_DEF}
 //Button B4:PB0
 #define BUTTON_B4_GPIO_PIN				GPIO_Pin_0
 #define BUTTON_B4_GPIO_PORT				GPIOB
@@ -119,11 +120,12 @@
 #define BUTTON_B4_EXTI_PINSOURCEX		EXTI_PinSource0
 #define BUTTON_B4_EXTI_LINE				EXTI_Line0
 #define BUTTON_B4_NVIC_IRQCHANNEL 		EXTI0_IRQn
-#define BUTTON_B4_EXTI_TRIGGER_TYPE_DEF  	EXTI_Trigger_Rising_Falling
+#define BUTTON_B4_EXTI_TRIGGER_TYPE_DEF EXTI_Trigger_Rising_Falling
 
+#define BUTTON_B4_INIT					{BUTTON_B4_GPIO_PIN,BUTTON_B4_GPIO_PORT,BUTTON_B4_INIT_SETCLOCK,BUTTON_B4_EXTI_PORT_SOURCEGPIOX,BUTTON_B4_EXTI_PINSOURCEX,BUTTON_B4_EXTI_LINE,BUTTON_B4_NVIC_IRQCHANNEL,BUTTON_B4_EXTI_TRIGGER_TYPE_DEF}
 
 //define SYSCFG clock
-#define SYSCFGInit_SetClock				RCC_APB2Periph_SYSCFG
+#define SYSCFGINIT_SETCLOCK				RCC_APB2Periph_SYSCFG
 
 //define other--------------------------------------------------------------------------------//
 #define GPIO_PIN_SET 					1
@@ -178,6 +180,18 @@ typedef struct
 Button_t BtnB2;
 Button_t BtnB3;
 Button_t BtnB4;
+typedef struct
+{
+	uint16_t pin;
+	GPIO_TypeDef *port;
+	uint32_t clock;
+	uint8_t extiPort;
+	uint8_t extiPin;
+	uint32_t extiLine;
+	uint8_t irqChannel;
+	EXTITrigger_TypeDef EXTI_Trigger;
+}BtnInit_t;
+BtnInit_t BtnArray[BUTTON_COUNT]={BUTTON_B2_INIT,BUTTON_B3_INIT,BUTTON_B4_INIT};
 /******************************************************************************/
 /*                              EXPORTED DATA                                 */
 /******************************************************************************/
@@ -189,11 +203,7 @@ static
 void outputInit(uint32_t dwSetClock,uint16_t wGpioPin,GPIO_TypeDef *pGpioPort);
 
 static
-void Input_Interrupt(uint32_t SetClock,uint16_t GPIO_Pin,GPIO_TypeDef *GPIO_Port,
-					uint8_t  EXTI_PortSourceGPIOx,  uint8_t  EXTI_PinSourcex ,
-					uint32_t  EXTI_Line ,uint8_t  NVIC_IRQChannel,
-					EXTITrigger_TypeDef  EXTI_Trigger
-);
+void Input_Interrupt(void);
 
 static
 void LedBuzz_Init(void);
@@ -272,39 +282,39 @@ void outputInit(uint32_t dwSetClock,uint16_t wGpioPin,GPIO_TypeDef *pGpioPort)
  * @retval None
  */
 static
-void Input_Interrupt(uint32_t SetClock,uint16_t GPIO_Pin,GPIO_TypeDef *GPIO_Port,
-					uint8_t  EXTI_PortSourceGPIOx,  uint8_t  EXTI_PinSourcex ,
-					uint32_t  EXTI_Line ,uint8_t  NVIC_IRQChannel,
-					EXTITrigger_TypeDef  EXTI_Trigger
-)
+void Input_Interrupt(void)
 {
-	GPIO_InitTypeDef GPIO_Intructure;
-	EXTI_InitTypeDef EXTI_InitStruct;
-	NVIC_InitTypeDef NVIC_InitStruct;
-	// Bat xung clock cho nut nhan
-	RCC_AHB1PeriphClockCmd(SetClock,ENABLE);
-	// Cau hinh nut bam
-	GPIO_Intructure.GPIO_Pin = GPIO_Pin;
-	GPIO_Intructure.GPIO_Mode = GPIO_Mode_IN;
-	GPIO_Intructure.GPIO_Speed = GPIO_Fast_Speed;
-	GPIO_Intructure.GPIO_PuPd =  GPIO_PuPd_UP;
-	GPIO_Init(GPIO_Port,&GPIO_Intructure);
-	// Bat xung clock cho ngat
-	RCC_APB2PeriphClockCmd(SYSCFGInit_SetClock, ENABLE);
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOx, EXTI_PinSourcex);
-	// Cau hinh EXTI
-	EXTI_InitStruct.EXTI_Line = EXTI_Line;
-	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger;
-	EXTI_InitStruct.EXTI_LineCmd = ENABLE ;
-	EXTI_Init(&EXTI_InitStruct);
-	// Cau hinh trinh phuc vu ngat
-	NVIC_InitStruct.NVIC_IRQChannel = NVIC_IRQChannel;
-	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	for(uint8_t i;i<BUTTON_COUNT;i++)
+	{
+			GPIO_InitTypeDef GPIO_Intructure;
+			EXTI_InitTypeDef EXTI_InitStruct;
+			NVIC_InitTypeDef NVIC_InitStruct;
+			// Bat xung clock cho nut nhan
+			RCC_AHB1PeriphClockCmd(BtnArray[i].clock,ENABLE);
+			// Cau hinh nut bam
+			GPIO_Intructure.GPIO_Pin = BtnArray[i].pin;
+			GPIO_Intructure.GPIO_Mode = GPIO_Mode_IN;
+			GPIO_Intructure.GPIO_Speed = GPIO_Fast_Speed;
+			GPIO_Intructure.GPIO_PuPd =  GPIO_PuPd_UP;
+			GPIO_Init(BtnArray[i].port,&GPIO_Intructure);
+			// Bat xung clock cho ngat
+			RCC_APB2PeriphClockCmd(SYSCFGINIT_SETCLOCK, ENABLE);
+			SYSCFG_EXTILineConfig(BtnArray[i].extiPort, BtnArray[i].extiPin);
+			// Cau hinh EXTI
+			EXTI_InitStruct.EXTI_Line = BtnArray[i].extiLine;
+			EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+			EXTI_InitStruct.EXTI_Trigger = BtnArray[i].EXTI_Trigger;
+			EXTI_InitStruct.EXTI_LineCmd = ENABLE ;
+			EXTI_Init(&EXTI_InitStruct);
+			// Cau hinh trinh phuc vu ngat
+			NVIC_InitStruct.NVIC_IRQChannel = BtnArray[i].irqChannel;
+			NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
+			NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
+			NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
 
-	NVIC_Init(&NVIC_InitStruct);
+			NVIC_Init(&NVIC_InitStruct);
+	}
+
 }
 /**
  * @func   LedBuzz_Init
@@ -335,9 +345,7 @@ void Button_Init(void)
 	BtnB2.State = BUTTON_STATE_START;
 	BtnB3.State = BUTTON_STATE_START;
 	BtnB4.State = BUTTON_STATE_START;
-	Input_Interrupt(BUTTON_B2_INIT_SETCLOCK, BUTTON_B2_GPIO_PIN, BUTTON_B2_GPIO_PORT, BUTTON_B2_EXTI_PORT_SOURCEGPIOX, BUTTON_B2_EXTI_PINSOURCEX, BUTTON_B2_EXTI_LINE, BUTTON_B2_NVIC_IRQCHANNEL,BUTTON_B2_EXTI_TRIGGER_TYPE_DEF);
-	Input_Interrupt(BUTTON_B3_INIT_SETCLOCK, BUTTON_B3_GPIO_PIN, BUTTON_B3_GPIO_PORT, BUTTON_B3_EXTI_PORT_SOURCEGPIOX, BUTTON_B3_EXTI_PINSOURCEX, BUTTON_B3_EXTI_LINE, BUTTON_B3_NVIC_IRQCHANNEL,BUTTON_B3_EXTI_TRIGGER_TYPE_DEF);
-	Input_Interrupt(BUTTON_B4_INIT_SETCLOCK, BUTTON_B4_GPIO_PIN, BUTTON_B4_GPIO_PORT, BUTTON_B4_EXTI_PORT_SOURCEGPIOX, BUTTON_B4_EXTI_PINSOURCEX, BUTTON_B4_EXTI_LINE, BUTTON_B4_NVIC_IRQCHANNEL,BUTTON_B4_EXTI_TRIGGER_TYPE_DEF);
+	Input_Interrupt();
 }
 /**
  * @func   LedControl_SetState
