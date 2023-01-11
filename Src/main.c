@@ -135,7 +135,7 @@
 #define BW2PRESS_TIME		            400u
 
 /* Button status */
-#define BUTTON_EDGE						1
+#define BUTTON_EDGE_RISING				1
 #define BUTTON_EDGE_FALLING            	2
 #define Null							0
 
@@ -186,7 +186,7 @@ Button_t BtnB4;
 /*                            PRIVATE FUNCTIONS                               */
 /******************************************************************************/
 static
-void Output_Init(uint32_t SetClock,uint16_t GPIO_Pin,GPIO_TypeDef *GPIO_Port);
+void outputInit(uint32_t dwSetClock,uint16_t wGpioPin,GPIO_TypeDef *pGpioPort);
 
 static
 void Input_Interrupt(uint32_t SetClock,uint16_t GPIO_Pin,GPIO_TypeDef *GPIO_Port,
@@ -238,24 +238,24 @@ int main(void)
 		}
 }
 /**
- * @func   Output_Init
+ * @func   outputInit
  * @brief  Ham setup dau ra
  * @param  SetClock: Xung cap, GPIO_Pin: Pin dau ra, GPIO_Port: Port dau ra
  * @retval None
  */
 static
-void Output_Init(uint32_t SetClock,uint16_t GPIO_Pin,GPIO_TypeDef *GPIO_Port)
+void outputInit(uint32_t dwSetClock,uint16_t wGpioPin,GPIO_TypeDef *pGpioPort)
 {
 	GPIO_InitTypeDef  GPIO_Intructure;
 
-	RCC_AHB1PeriphClockCmd(SetClock,ENABLE);
+	RCC_AHB1PeriphClockCmd(dwSetClock,ENABLE);
 
-	GPIO_Intructure.GPIO_Pin  = GPIO_Pin;
+	GPIO_Intructure.GPIO_Pin  = wGpioPin;
 	GPIO_Intructure.GPIO_Mode = GPIO_Mode_OUT ;
 	GPIO_Intructure.GPIO_Speed = GPIO_Fast_Speed;
 	GPIO_Intructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_Intructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_Init(GPIO_Port,&GPIO_Intructure);
+	GPIO_Init(pGpioPort,&GPIO_Intructure);
 }
 /**
  * @func   Input_Interrupt
@@ -315,13 +315,13 @@ void Input_Interrupt(uint32_t SetClock,uint16_t GPIO_Pin,GPIO_TypeDef *GPIO_Port
 static
 void LedBuzz_Init(void)
 {
-	Output_Init(LED_RED_1_INIT_SETCLOCK, LED_RED_1_GPIO_PIN, LED_RED_1_GPIO_PORT);
-	Output_Init(LED_RED_2_INIT_SETCLOCK, LED_RED_2_GPIO_PIN, LED_RED_2_GPIO_PORT);
-	Output_Init(LED_BLUE_1_INIT_SETCLOCK, LED_BLUE_1_GPIO_PIN, LED_BLUE_1_GPIO_PORT);
-	Output_Init(LED_GREEN_1_INIT_SETCLOCK, LED_GREEN_1_GPIO_PIN, LED_GREEN_1_GPIO_PORT);
-	Output_Init(LED_GREEN_2_INIT_SETCLOCK, LED_GREEN_2_GPIO_PIN, LED_GREEN_2_GPIO_PORT);
-	Output_Init(LED_BOARD_INIT_SETCLOCK, LED_BOARD_GPIO_PIN, LED_BOARD_GPIO_PORT);
-	Output_Init(BUZZER_INIT_SETCLOCK, BUZZER_GPIO_PIN, BUZZER_GPIO_PORT);
+	outputInit(LED_RED_1_INIT_SETCLOCK, LED_RED_1_GPIO_PIN, LED_RED_1_GPIO_PORT);
+	outputInit(LED_RED_2_INIT_SETCLOCK, LED_RED_2_GPIO_PIN, LED_RED_2_GPIO_PORT);
+	outputInit(LED_BLUE_1_INIT_SETCLOCK, LED_BLUE_1_GPIO_PIN, LED_BLUE_1_GPIO_PORT);
+	outputInit(LED_GREEN_1_INIT_SETCLOCK, LED_GREEN_1_GPIO_PIN, LED_GREEN_1_GPIO_PORT);
+	outputInit(LED_GREEN_2_INIT_SETCLOCK, LED_GREEN_2_GPIO_PIN, LED_GREEN_2_GPIO_PORT);
+	outputInit(LED_BOARD_INIT_SETCLOCK, LED_BOARD_GPIO_PIN, LED_BOARD_GPIO_PORT);
+	outputInit(BUZZER_INIT_SETCLOCK, BUZZER_GPIO_PIN, BUZZER_GPIO_PORT);
 }
 /**
  * @func   Button_Init
