@@ -288,15 +288,7 @@ void outputInit(void)
 /**
  * @func   inputInterruptInit
  * @brief  Ham setup dau ra
- * @param
- * SetClock: Xung cap
- * GPIO_Pin: Pin dau vao
- * GPIO_Port: Port dau vao
- * EXTI_PortSourceGPIOx
- * EXTI_PinSourcex
- * EXTI_Line
- * NVIC_IRQChannel
- * EXTI_Trigger
+ * @param  None
  * @retval None
  */
 static
