@@ -93,7 +93,7 @@
 #define BUTTON_B2_EXTI_PINSOURCEX		EXTI_PinSource3
 #define BUTTON_B2_EXTI_LINE				EXTI_Line3
 #define BUTTON_B2_NVIC_IRQCHANNEL 		EXTI3_IRQn
-#define BUTTON_B2_EXTI_PORT_SOURCEGPIOX EXTI_Trigger_Rising_Falling
+#define BUTTON_B2_EXTI_TRIGGER_TYPE_DEF EXTI_Trigger_Rising_Falling
 
 
 //Button B3:PA4
